@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script>
+    // GitHub Pages SPA redirect fix
+    var path = window.location.pathname.replace('/provfx', '');
+    var search = window.location.search;
+    var hash = window.location.hash;
+    var redirect = '/provfx/?p=' + encodeURIComponent(path + search) + hash;
+    window.location.replace(redirect);
+  </script>
+</head>
+</html>
