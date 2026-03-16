@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 import useStore from '../store/useStore';
 import { projectsApi } from '../lib/api';
-import { motion, AnimatePresence } from 'framer-motion';
 import './Editor.css';
 
 const Editor = () => {
@@ -23,10 +22,6 @@ const Editor = () => {
 
     // UI State
     const [isPlaying, setIsPlaying] = useState(false);
-    const [isRecording, setIsRecording] = useState(false);
-    const [showApiModal, setShowApiModal] = useState(false);
-    const [apiStep, setApiStep] = useState(0);
-    const [apiStatus, setApiStatus] = useState({ title: '', sub: '', done: false });
     const [isLoading, setIsLoading] = useState(true);
     const [fileNames, setFileNames] = useState({ video: "Select Video / Image", overlay: "Select Overlay Video", audio: "Select Audio File" });
     
@@ -42,8 +37,8 @@ const Editor = () => {
     
     // Timeline Tracks State
     const [clips, setClips] = useState([
-        { id: 't1', type: 'text', name: 'Text (Title)', icon: TypeIcon, color: 'text-white', bg: 'bg-gradient-to-r from-[#6147F6] to-[#7E65FE] text-white', border: 'border-white/20', iconColor: 'bg-black/20', start: 10, end: 90, label: 'SOPRA aa' },
-        { id: 't2', type: 'text', name: 'Text (Sub)', icon: TypeIcon, color: 'text-white', bg: 'bg-gradient-to-r from-[#6147F6] to-[#7E65FE] text-white opacity-70', border: 'border-white/20', iconColor: 'bg-black/20', start: 15, end: 85, label: 'LOU NADAL DIRECT...' }
+        { id: 't1', type: 'text', name: 'Text (Title)', icon: TypeIcon, color: 'text-white', bg: 'bg-gradient-to-r from-[#6147F6] to-[#7E65FE] text-white', border: 'border-white/20', iconColor: 'bg-black/20', start: 0, end: 100, label: 'SOPRA aa' },
+        { id: 't2', type: 'text', name: 'Text (Sub)', icon: TypeIcon, color: 'text-white', bg: 'bg-gradient-to-r from-[#6147F6] to-[#7E65FE] text-white opacity-70', border: 'border-white/20', iconColor: 'bg-black/20', start: 0, end: 100, label: 'LOU NADAL DIRECT...' }
     ]);
     const [draggingClip, setDraggingClip] = useState(null);
     const [dragInfo, setDragInfo] = useState({ startX: 0, originalStart: 0, originalEnd: 0, type: '' });
@@ -79,7 +74,7 @@ const Editor = () => {
 
     const engineState = useRef({
         ...renderState,
-        duration: 0, currentTime: 0,
+        duration: 10, currentTime: 0,
         hasVideo: false, hasImage: false, hasAudio: false, hasOverlayVideo: false
     });
 
@@ -123,7 +118,7 @@ const Editor = () => {
                         if (data.files.audio) { rawFiles.current.audio = data.files.audio; audRef.current.src = getSrc(data.files.audio); setFileNames(p => ({ ...p, audio: data.files.audio.name || "cloud-audio.mp3" })); audRef.current.onloadedmetadata = () => { engineState.current.duration = Math.max(engineState.current.duration, audRef.current.duration); }; audRef.current.load(); }
                         if (data.files.overlay) { rawFiles.current.overlay = data.files.overlay; overlayVidRef.current.src = getSrc(data.files.overlay); setFileNames(p => ({ ...p, overlay: data.files.overlay.name || "cloud-overlay.mp4" })); overlayVidRef.current.onloadedmetadata = () => { engineState.current.duration = Math.max(engineState.current.duration, overlayVidRef.current.duration); requestRender(); }; overlayVidRef.current.load(); }
                     }
-                } catch (e) {}
+                } catch { /* ignore */ }
             } else if (!searchParams.has('projectId')) {
                 setSearchParams({ ...Object.fromEntries(searchParams.entries()), projectId: currentProjectId.current }, { replace: true });
                 if (imgRef.current && !engineState.current.hasVideo) {
@@ -136,6 +131,7 @@ const Editor = () => {
         };
 
         loadProject();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user, searchParams, setSearchParams]);
 
     const isSavingFile = useRef(false);
@@ -154,7 +150,7 @@ const Editor = () => {
                     }
                 }
                 flashSave();
-            } catch (e) {} finally {
+            } catch { /* ignore */ } finally {
                 isSavingFile.current = false;
             }
         };
@@ -163,7 +159,7 @@ const Editor = () => {
     }, [user, isLoading]);
 
     const requestRender = () => {
-        if (!isPlaying && !isRecording) requestAnimationFrame(renderEngine);
+        if (!isPlaying) requestAnimationFrame(renderEngine);
     };
 
     const renderEngine = () => {
@@ -272,13 +268,13 @@ const Editor = () => {
     useEffect(() => {
         let frameId;
         const loop = () => {
-            if (isPlaying || isRecording) {
+            if (isPlaying) {
                 const st = engineState.current;
                 if (st.hasAudio && audRef.current && !audRef.current.paused) st.currentTime = audRef.current.currentTime;
                 else if (st.hasVideo && vidRef.current && !vidRef.current.paused) st.currentTime = vidRef.current.currentTime;
                 else if (st.hasOverlayVideo && overlayVidRef.current && !overlayVidRef.current.paused) st.currentTime = overlayVidRef.current.currentTime;
 
-                if (st.currentTime >= st.duration && isPlaying && !isRecording && st.duration > 0) {
+                if (st.currentTime >= st.duration && isPlaying && st.duration > 0) {
                     st.currentTime = 0;
                     if (st.hasVideo && vidRef.current) vidRef.current.currentTime = 0;
                     if (st.hasAudio && audRef.current) audRef.current.currentTime = 0;
@@ -296,9 +292,10 @@ const Editor = () => {
                 frameId = requestAnimationFrame(loop);
             }
         };
-        if (isPlaying || isRecording) { loop(); }
+        if (isPlaying) { loop(); }
         return () => cancelAnimationFrame(frameId);
-    }, [isPlaying, isRecording]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isPlaying]);
 
     useEffect(() => {
         const handleGlobalMouseMove = (e) => {
@@ -343,6 +340,31 @@ const Editor = () => {
         }
     };
 
+    const handleTimelineClick = (e) => {
+        if (!timeCurrentRef.current || !playheadRef.current || draggingClip || engineState.current.duration <= 0) return;
+        const timelineEl = e.currentTarget;
+        const rect = timelineEl.getBoundingClientRect();
+        // The tracks have a left padding area of 180px for headers. Let's make sure we only calculate click on the tracks portion
+        const headerWidth = 180;
+        let clickX = e.clientX - rect.left;
+
+        // If clicked on header, ignore
+        if (clickX <= headerWidth) return;
+
+        const trackWidth = rect.width - headerWidth;
+        let pct = (clickX - headerWidth) / trackWidth;
+        pct = Math.max(0, Math.min(1, pct));
+
+        const newTime = pct * engineState.current.duration;
+        engineState.current.currentTime = newTime;
+
+        if (engineState.current.hasVideo && vidRef.current) vidRef.current.currentTime = newTime;
+        if (engineState.current.hasAudio && audRef.current) audRef.current.currentTime = newTime;
+        if (engineState.current.hasOverlayVideo && overlayVidRef.current) overlayVidRef.current.currentTime = newTime;
+
+        if (!isPlaying) requestRender();
+    };
+
     const togglePlay = () => {
         const st = engineState.current;
         if (!isPlaying) {
@@ -368,8 +390,12 @@ const Editor = () => {
     const flashSave = () => {
         if (!saveIndicatorRef.current) return;
         saveIndicatorRef.current.style.background = '#e94b28';
+        saveIndicatorRef.current.style.boxShadow = '0 0 10px rgba(233,75,40,0.8)';
         setTimeout(() => {
-            if (saveIndicatorRef.current) saveIndicatorRef.current.style.background = '#323338';
+            if (saveIndicatorRef.current) {
+                saveIndicatorRef.current.style.background = '#10b981';
+                saveIndicatorRef.current.style.boxShadow = '0 0 10px rgba(16,185,129,0.5)';
+            }
         }, 1000);
     };
 
@@ -436,7 +462,7 @@ const Editor = () => {
             if (imgs.length === 0) throw new Error("No images parsable");
             setPinterestImages(imgs);
             setPinterestConnected(true);
-        } catch (e) {
+        } catch {
             setPinterestImages([
                 "https://images.unsplash.com/photo-1542282088-fe8426682b8f?q=80&w=1920",
                 "https://images.unsplash.com/photo-1555680202-c86f0e12f086?q=80&w=1920",
@@ -448,7 +474,7 @@ const Editor = () => {
         setIsLoadingPinterest(false);
     };
 
-    const usePinterestImage = async (url) => {
+    const handlePinterestImage = async (url) => {
         setIsLoadingPinterest(true);
         try {
             // Draw via standard Image node (we can accept canvas export taint for $0 local sessions, it will still render on screen)
@@ -680,14 +706,20 @@ const Editor = () => {
                                     <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" className="text-[#8e8e99]"><polyline points="9 18 15 12 9 6"></polyline></svg>
                                 </div>
 
-                                {/* HIDDEN DATA REPOSITORY FOR BACKEND VARIABLES */}
-                                <div className="hidden">
-                                     <input type="text" value={renderState.lease || ''} onChange={handleInput('lease', 'string')} />
-                                     <input type="text" value={renderState.url || ''} onChange={handleInput('url', 'string')} />
-                                     <input type="text" value={renderState.ratingMain || ''} onChange={handleInput('ratingMain', 'string')} />
-                                     <input type="text" value={renderState.ratingSub1 || ''} onChange={handleInput('ratingSub1', 'string')} />
-                                     <input type="text" value={renderState.ratingSub2 || ''} onChange={handleInput('ratingSub2', 'string')} />
+                                <div className="w-full h-[1px] bg-[#26262b] my-5"></div>
+                                <div className="flex justify-between items-center cursor-pointer mb-5" onClick={() => toggleAccordion('textData')}>
+                                    <span className="text-[#f0f0f5] font-bold text-[13px] tracking-wide">Text Data</span>
+                                    {activeAccordions.textData ? <ChevronUp size={16} className="text-[#8e8e99]"/> : <ChevronDown size={16} className="text-[#8e8e99]"/>}
                                 </div>
+                                {activeAccordions.textData && (
+                                    <div className="flex flex-col gap-3">
+                                        <input type="text" className="v-input" value={renderState.lease || ''} onChange={handleInput('lease', 'string')} placeholder="Lease" />
+                                        <input type="text" className="v-input" value={renderState.url || ''} onChange={handleInput('url', 'string')} placeholder="URL" />
+                                        <input type="text" className="v-input" value={renderState.ratingMain || ''} onChange={handleInput('ratingMain', 'string')} placeholder="Rating Main" />
+                                        <input type="text" className="v-input" value={renderState.ratingSub1 || ''} onChange={handleInput('ratingSub1', 'string')} placeholder="Rating Sub 1" />
+                                        <input type="text" className="v-input" value={renderState.ratingSub2 || ''} onChange={handleInput('ratingSub2', 'string')} placeholder="Rating Sub 2" />
+                                    </div>
+                                )}
                             </div>
                         )}
 
@@ -773,7 +805,7 @@ const Editor = () => {
                                         <div className="text-xs mb-3 text-white flex justify-between"><span>Found {pinterestImages.length} Pins</span><span className="text-[#e94b28] cursor-pointer text-[10px]" onClick={()=>{setPinterestConnected(false); setPinterestUsername("");}}>Sign out</span></div>
                                         <div className="grid grid-cols-2 gap-2">
                                             {pinterestImages.map((img, i) => (
-                                                <div key={i} className="v-pin-item" onClick={() => usePinterestImage(img)}>
+                                                <div key={i} className="v-pin-item" onClick={() => handlePinterestImage(img)}>
                                                     <img src={img} alt="" crossOrigin="anonymous" />
                                                 </div>
                                             ))}
@@ -796,7 +828,10 @@ const Editor = () => {
                     <div className="v-bottom-area flex flex-col h-[280px] bg-[#0A0A0C] border-t border-[#1f1f22]">
                         <div className="v-transport flex items-center justify-between h-10 px-4 bg-[#0A0A0C] border-b border-[#1f1f22]">
                             <div className="flex items-center gap-4 text-[#666]">
-                                <span className="text-[10px] uppercase font-bold tracking-wider">Trailer V1.2. mp4 (Auto-saved)</span>
+                                <div className="flex items-center gap-2 bg-[#1c1d22] px-3 py-1 rounded-full border border-[#27272a]">
+                                    <div ref={saveIndicatorRef} className="w-1.5 h-1.5 rounded-full bg-[#10b981] shadow-[0_0_10px_rgba(16,185,129,0.5)] transition-colors duration-500"></div>
+                                    <span className="text-[10px] uppercase font-bold tracking-wider text-[#888]">Trailer V1.2.mp4 <span className="text-[#555] ml-1">(Auto-Saved)</span></span>
+                                </div>
                             </div>
                             <div className="flex items-center gap-4 text-[#888]">
                                 <button className="hover:text-white transition-colors"><SkipBack size={14} fill="currentColor" /></button>
@@ -806,7 +841,7 @@ const Editor = () => {
                                 <button className="hover:text-white transition-colors"><SkipForward size={14} fill="currentColor" /></button>
                             </div>
                             <div className="flex items-center gap-4 text-[#666]">
-                                <span className="text-[10px] font-mono">00:00:27:04</span>
+                                <span ref={timeCurrentRef} className="text-[10px] font-mono">00:00:00:00</span>
                                 <Volume2 size={14} className="hover:text-white cursor-pointer transition-colors"/>
                                 <Maximize size={12} className="hover:text-white cursor-pointer transition-colors"/>
                             </div>
@@ -833,14 +868,14 @@ const Editor = () => {
                                 </div>
                             </div>
                             
-                            <div className="v-tl-tracks flex-1 overflow-x-auto overflow-y-auto relative py-2">
+                            <div className="v-tl-tracks flex-1 overflow-x-auto overflow-y-auto relative py-2 cursor-pointer" onClick={handleTimelineClick}>
                                 <div className="min-w-full relative h-[100px]" style={{width: `${timelineZoom * 100}%`}}>
                                     
                                     <div ref={playheadRef} className="absolute top-0 bottom-0 w-px bg-white z-20 pointer-events-none shadow-[0_0_10px_rgba(255,255,255,0.8)]" style={{left: '0%'}}>
                                         <div className="absolute top-0 left-[50%] -translate-x-1/2 w-2 h-2 rounded bg-white mt-1 shadow-[0_0_10px_rgba(255,255,255,0.8)]"></div>
                                     </div>
 
-                                {['video', 'text', 'audio'].map((trackType, tIndex) => {
+                                {['video', 'text', 'audio'].map((trackType) => {
                                     const trackClips = clips.filter(c => c.type === trackType);
                                     if (trackClips.length === 0) return null;
                                     
@@ -857,7 +892,7 @@ const Editor = () => {
                                                 </button>
                                             </div>
                                             <div className="flex-1 relative h-full flex items-center px-1">
-                                                {trackClips.map((clip, cIndex) => (
+                                                {trackClips.map((clip) => (
                                                     <div 
                                                         key={clip.id}
                                                         onMouseDown={(e) => handleClipDown(e, clip.id, 'move')}

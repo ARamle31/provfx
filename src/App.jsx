@@ -21,7 +21,7 @@ function App() {
   }, [initAuth]);
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/provfx">
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
