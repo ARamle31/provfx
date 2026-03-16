@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
     CloudLightning, Loader2, CheckCircle, Layout, Image as ImageIcon,
@@ -45,6 +45,16 @@ const Editor = () => {
         { id: 't1', type: 'text', name: 'Text (Title)', icon: TypeIcon, color: 'text-white', bg: 'bg-gradient-to-r from-[#6147F6] to-[#7E65FE] text-white', border: 'border-white/20', iconColor: 'bg-black/20', start: 10, end: 90, label: 'SOPRA aa' },
         { id: 't2', type: 'text', name: 'Text (Sub)', icon: TypeIcon, color: 'text-white', bg: 'bg-gradient-to-r from-[#6147F6] to-[#7E65FE] text-white opacity-70', border: 'border-white/20', iconColor: 'bg-black/20', start: 15, end: 85, label: 'LOU NADAL DIRECT...' }
     ]);
+
+    const clipsByType = useMemo(() => {
+        const grouped = { video: [], text: [], audio: [] };
+        clips.forEach(clip => {
+            if (grouped[clip.type]) {
+                grouped[clip.type].push(clip);
+            }
+        });
+        return grouped;
+    }, [clips]);
     const [draggingClip, setDraggingClip] = useState(null);
     const [dragInfo, setDragInfo] = useState({ startX: 0, originalStart: 0, originalEnd: 0, type: '' });
     const [timelineZoom, setTimelineZoom] = useState(1);
@@ -841,7 +851,7 @@ const Editor = () => {
                                     </div>
 
                                 {['video', 'text', 'audio'].map((trackType, tIndex) => {
-                                    const trackClips = clips.filter(c => c.type === trackType);
+                                    const trackClips = clipsByType[trackType] || [];
                                     if (trackClips.length === 0) return null;
                                     
                                     // Group them just primarily by type for track rows
