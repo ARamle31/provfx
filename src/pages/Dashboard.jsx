@@ -1,32 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LayoutGrid, Edit, UploadCloud, Settings, LogOut, Loader2, Play, Sparkles, FolderOpen, Video } from 'lucide-react';
-import { motion } from 'framer-motion';
 import useStore from '../store/useStore';
 import { projectsApi } from '../lib/api';
 
-const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
-    <motion.button
-        whileHover={{ x: 5 }}
-        whileTap={{ scale: 0.95 }}
+const SidebarItem = ({ icon: IconComponent, label, active, onClick }) => (
+    <button
         onClick={onClick}
-        className={`flex items-center gap-3 px-4 py-3.5 w-full text-left text-sm font-semibold rounded-xl transition-all mb-1 ${active
+        className={`flex items-center gap-3 px-4 py-3.5 w-full text-left text-sm font-semibold rounded-xl transition-all mb-1 hover:translate-x-1 active:scale-95 ${active
             ? 'bg-gradient-to-r from-mainAccent/20 to-transparent text-mainAccent border-l-2 border-mainAccent shadow-[inset_0_0_20px_rgba(59,130,246,0.05)]'
             : 'text-textMuted hover:bg-[#18181b] hover:text-white border-l-2 border-transparent hover:border-[#333]'
             }`}
     >
-        <Icon size={18} />
+        <IconComponent size={18} />
         {label}
-    </motion.button>
+    </button>
 );
 
 const TemplateCard = ({ title, desc, tags, previewUrl, isVHS, isProject, onClick }) => (
-    <motion.div
-        whileHover={{ y: -8, scale: 1.02 }}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+    <div
         onClick={onClick}
-        className="bg-bgCard border border-[#26262b] rounded-3xl overflow-hidden cursor-pointer hover:border-mainAccent/50 hover:shadow-[0_20px_40px_rgba(233,75,40,0.15)] transition-all block text-left group flex flex-col h-full"
+        className="bg-bgCard border border-[#26262b] rounded-3xl overflow-hidden cursor-pointer hover:border-mainAccent/50 hover:shadow-[0_20px_40px_rgba(233,75,40,0.15)] transition-all hover:-translate-y-2 hover:scale-[1.02] block text-left group flex flex-col h-full animate-[fadeInUp_0.5s_ease-out_forwards]"
     >
         <div
             className={`w-full h-48 relative bg-[#1c1d22] bg-cover bg-center shrink-0 ${isVHS ? 'bg-[url(https://images.unsplash.com/photo-1542282088-fe8426682b8f?q=80&w=800&auto=format&fit=crop)]' : ''}`}
@@ -67,7 +61,7 @@ const TemplateCard = ({ title, desc, tags, previewUrl, isVHS, isProject, onClick
                 ))}
             </div>
         </div>
-    </motion.div>
+    </div>
 );
 
 const Dashboard = () => {
@@ -182,7 +176,7 @@ const Dashboard = () => {
                                     <FolderOpen size={32} className="text-[#8e8e99]" />
                                 </div>
                                 <h4 className="text-xl font-bold text-white mb-2">No Projects Detected</h4>
-                                <p className="text-[#8e8e99] max-w-sm">You haven't saved any sessions to the cloud yet. Open a workspace to automatically trigger a sync.</p>
+                                <p className="text-[#8e8e99] max-w-sm">You haven&apos;t saved any sessions to the cloud yet. Open a workspace to automatically trigger a sync.</p>
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

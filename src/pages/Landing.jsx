@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Play, Sparkles, Zap, Globe, Github, Twitter, Youtube, MonitorPlay, Layers, Cpu, CloudLightning, Video, DatabaseBackup } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Play, Zap, Github, Twitter, Youtube, MonitorPlay, Layers, Video, DatabaseBackup } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 import useStore from '../store/useStore';
 
 const AuthModal = ({ isOpen, onClose }) => {
@@ -74,7 +74,7 @@ const AuthModal = ({ isOpen, onClose }) => {
     );
 };
 
-const BentoBox = ({ icon: Icon, title, desc, delay, size = "small" }) => (
+const BentoBox = ({ icon: TheIcon, title, desc, delay, size = "small" }) => (
     <motion.div
         initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 0.7, delay }}
         whileHover={{ y: -10, scale: 1.02 }}
@@ -83,7 +83,7 @@ const BentoBox = ({ icon: Icon, title, desc, delay, size = "small" }) => (
     >
         <div className="absolute top-0 right-0 w-32 h-32 bg-mainAccent rounded-full blur-[80px] opacity-0 group-hover:opacity-10 transition-opacity duration-700"></div>
         <div className="w-14 h-14 rounded-2xl bg-[#111113] border border-[#27272a] flex items-center justify-center text-white mb-8 group-hover:scale-110 group-hover:bg-mainAccent group-hover:text-black group-hover:border-mainAccent transition-all duration-300">
-            <Icon size={24} />
+            {React.createElement(TheIcon, { size: 24 })}
         </div>
         <h3 className="text-2xl font-black text-white mb-4 tracking-tight group-hover:translate-x-1 transition-transform">{title}</h3>
         <p className="text-[#888] font-medium leading-relaxed max-w-sm group-hover:text-white/80 transition-colors">{desc}</p>
@@ -99,9 +99,11 @@ const Landing = () => {
         <div className="relative min-h-screen font-inter w-full text-textMain bg-[#020202] selection:bg-mainAccent selection:text-black overflow-x-hidden">
 
             {/* Massive Neon Ambient Mesh */}
-            <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+            <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden bg-[#020202]">
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 0.15 }} transition={{ duration: 2 }} className="absolute top-[-30%] left-[-20%] w-[80vw] h-[80vh] bg-mainAccent rounded-full blur-[200px] animate-blob"></motion.div>
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 0.1 }} transition={{ duration: 3, delay: 1 }} className="absolute bottom-[-30%] right-[-20%] w-[70vw] h-[70vh] bg-purple-600 rounded-full blur-[250px] animate-blob" style={{ animationDelay: '4s', animationDuration: '30s' }}></motion.div>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 0.1 }} transition={{ duration: 3, delay: 1 }} className="absolute bottom-[-30%] right-[-20%] w-[70vw] h-[70vh] bg-indigo-600 rounded-full blur-[250px] animate-blob" style={{ animationDelay: '4s', animationDuration: '30s' }}></motion.div>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 0.1 }} transition={{ duration: 4, delay: 2 }} className="absolute top-[40%] left-[30%] w-[50vw] h-[50vh] bg-rose-600 rounded-full blur-[250px] animate-blob" style={{ animationDelay: '8s', animationDuration: '25s' }}></motion.div>
             </div>
 
             <AuthModal isOpen={showModal} onClose={() => setShowModal(false)} />
@@ -149,17 +151,17 @@ const Landing = () => {
 
                 <motion.h1
                     initial={{ opacity: 0, y: 20, filter: "blur(10px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ duration: 1, delay: 0.1, ease: "easeOut" }}
-                    className="text-[clamp(60px,10vw,140px)] font-black leading-[0.85] tracking-tighter max-w-[1400px] mb-10 text-white"
+                    className="text-[clamp(60px,10vw,140px)] font-black leading-[0.85] tracking-tighter max-w-[1400px] mb-8 text-white"
                 >
                     We Killed The <br />
-                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-mainAccent via-purple-400 to-white pb-2 relative inline-block">
+                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-mainAccent via-indigo-400 to-white pb-2 relative inline-block drop-shadow-[0_0_40px_rgba(233,75,40,0.3)]">
                         Render Queue.
                     </span>
                 </motion.h1>
 
                 <motion.p
                     initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.3 }}
-                    className="text-lg md:text-2xl text-[#888] font-medium max-w-[800px] leading-relaxed mb-14"
+                    className="text-lg md:text-2xl text-[#888] font-medium max-w-[800px] leading-relaxed mb-12"
                 >
                     The first serverless WebGL video editor capable of rendering 4K compositions entirely inside your browser cache. Instant playback, zero latency, limitless pipelines.
                 </motion.p>
@@ -213,7 +215,7 @@ const Landing = () => {
             <section id="features" className="py-40 px-6 max-w-[1300px] mx-auto">
                 <div className="text-center mb-24">
                     <h2 className="text-5xl md:text-7xl font-black mb-8 tracking-tighter text-white">Engineered for <br /><span className="bg-clip-text text-transparent bg-gradient-to-r from-mainAccent to-purple-400">Extreme Fidelity.</span></h2>
-                    <p className="text-[#888] font-medium text-xl max-w-2xl mx-auto leading-relaxed">Forget desktop apps eating your RAM. We route matrix transformations directly through your browser's V8 GPU instance.</p>
+                    <p className="text-[#888] font-medium text-xl max-w-2xl mx-auto leading-relaxed">Forget desktop apps eating your RAM. We route matrix transformations directly through your browser&apos;s V8 GPU instance.</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
