@@ -5,6 +5,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ProVFX SaaS</title>
+  <script>
+    (function (l) {
+      if (l.search) {
+        var params = new URLSearchParams(l.search);
+        var p = params.get('p');
+        if (p !== null) {
+          var newPath = (l.pathname.endsWith('/') ? l.pathname.slice(0, -1) : l.pathname) + p;
+          window.history.replaceState(null, null, newPath + l.hash);
+        }
+      }
+    }(window.location));
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
