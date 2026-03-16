@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Play, Sparkles, Zap, Globe, Github, Twitter, Youtube, MonitorPlay, Layers, Cpu, CloudLightning, Video, DatabaseBackup } from 'lucide-react';
+import { Play, Zap, Github, Twitter, Youtube, MonitorPlay, Layers, Video, DatabaseBackup } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import useStore from '../store/useStore';
 
