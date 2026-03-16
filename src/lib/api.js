@@ -6,7 +6,8 @@ export const auth = {
         const res = await fetch(`${API_URL}/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password, name })
+            body: JSON.stringify({ email, password, name }),
+            credentials: 'include'
         });
         if (!res.ok) throw new Error("Registration Failed");
         return res.json();
@@ -16,17 +17,16 @@ export const auth = {
         const res = await fetch(`${API_URL}/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify({ email, password }),
+            credentials: 'include'
         });
         if (!res.ok) throw new Error("Invalid Credentials");
         return res.json();
     },
 
     async getSession() {
-        const token = localStorage.getItem('provfx_token');
-        if (!token) throw new Error("No token");
         const res = await fetch(`${API_URL}/session`, {
-            headers: { 'Authorization': token }
+            credentials: 'include'
         });
         if (!res.ok) throw new Error("Session Invalid");
         return res.json();
@@ -35,13 +35,17 @@ export const auth = {
 
 export const projectsApi = {
     async getProjects(userId) {
-        const res = await fetch(`${API_URL}/projects?userId=${userId}`);
+        const res = await fetch(`${API_URL}/projects?userId=${userId}`, {
+            credentials: 'include'
+        });
         if (!res.ok) throw new Error("Failed to load pipeline");
         return res.json();
     },
 
     async loadProject(projectId) {
-        const res = await fetch(`${API_URL}/projects/${projectId}`);
+        const res = await fetch(`${API_URL}/projects/${projectId}`, {
+            credentials: 'include'
+        });
         if (!res.ok) throw new Error("Project Not Found");
         return res.json(); // Returns { stateData: {}, files: { video: { url, name }, ... } }
     },
@@ -69,7 +73,8 @@ export const projectsApi = {
 
         const res = await fetch(`${API_URL}/projects/${projectId}`, {
             method: 'POST',
-            body: formData
+            body: formData,
+            credentials: 'include'
         });
 
         if (!res.ok) throw new Error("Cloud sync failed");
